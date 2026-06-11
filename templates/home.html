@@ -1,0 +1,124 @@
+{% extends "_base.html" %}
+{% block nav_home %}text-primary font-bold border-b-2 border-primary pb-1{% endblock %}
+
+{% block content %}
+<main>
+<!-- Hero -->
+<section class="relative h-[921px] flex items-center justify-center overflow-hidden">
+  <div class="absolute inset-0 z-0">
+    <img class="w-full h-full object-cover"
+         src="https://lh3.googleusercontent.com/aida-public/AB6AXuASpVUVoETuQVqzmKVQDAg7nKXbMWj_9YJE-2BXxVj73DPi4dDpjnMagor8WWAUBIumzqgMJjUQ-mt-jgMVZ3CIj4m0kA72OCUVoevT48VFNgO-FaYVcjuuaqt4hE5dK3q-dfRQkYwVd0-cXW7hUH7TCwNM0U36q25H5JEulHWsroEVGdPmerwzsgPSckM6IUJo42PMduJcNoL-xA5QAw-_Dq967tEs7t_TrdT0Cqvi2S-rtQLLVwiGBRRkPjfZ34p4snti5YMMiQD2"
+         alt="Karakoram mountains, Pakistan"/>
+    <div class="absolute inset-0 hero-gradient"></div>
+  </div>
+  <div class="relative z-10 container mx-auto px-margin-mobile md:px-margin-desktop text-center text-white max-w-4xl">
+    <h1 class="font-display-hero text-display-hero-mobile md:text-display-hero mb-stack-sm drop-shadow-lg">
+      Discover Pakistan's Greatest Trails
+    </h1>
+    <p class="font-body-lg text-body-lg mb-stack-lg opacity-90 drop-shadow-md">
+      Explore verified routes across the world's most spectacular peaks.
+    </p>
+    <!-- Search Form -->
+    <form method="get" action="{% url 'trails:trail-list' %}"
+          class="glass-card p-4 md:p-2 rounded-xl md:rounded-full flex flex-col md:flex-row gap-2 shadow-2xl max-w-5xl mx-auto items-center">
+      <div class="flex-1 w-full flex items-center px-4 gap-2">
+        <span class="material-symbols-outlined text-outline">search</span>
+        <input name="q" class="bg-transparent border-none focus:ring-0 text-on-background w-full font-body-md"
+               placeholder="Trail Name" type="text" value="{{ request.GET.q }}"/>
+      </div>
+      <div class="h-8 w-[1px] bg-outline-variant/30 hidden md:block"></div>
+      <div class="flex-1 w-full flex items-center px-4 gap-2">
+        <span class="material-symbols-outlined text-outline">map</span>
+        <select name="region" class="bg-transparent border-none focus:ring-0 text-on-background w-full font-body-md appearance-none">
+          <option value="">Region</option>
+          {% for r in regions %}
+          <option value="{{ r.slug }}" {% if request.GET.region == r.slug %}selected{% endif %}>{{ r.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="h-8 w-[1px] bg-outline-variant/30 hidden md:block"></div>
+      <div class="flex-1 w-full flex items-center px-4 gap-2">
+        <span class="material-symbols-outlined text-outline">signal_cellular_alt</span>
+        <select name="difficulty" class="bg-transparent border-none focus:ring-0 text-on-background w-full font-body-md appearance-none">
+          <option value="">Difficulty</option>
+          <option value="Easy">Easy</option>
+          <option value="Moderate">Moderate</option>
+          <option value="Hard">Hard</option>
+        </select>
+      </div>
+      <button type="submit" class="w-full md:w-auto px-10 py-4 md:py-3 bg-primary text-on-primary rounded-full font-bold flex items-center justify-center gap-2 hover:bg-primary-container transition-all">
+        Search
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- Featured Trails -->
+<section class="py-stack-lg container mx-auto px-margin-mobile md:px-margin-desktop">
+  <div class="flex flex-col md:flex-row justify-between items-end mb-stack-lg gap-4">
+    <div>
+      <span class="font-label-caps text-label-caps text-secondary uppercase tracking-widest block mb-2">Curated Journeys</span>
+      <h2 class="font-headline-lg text-headline-lg text-on-background">Featured Expeditions</h2>
+    </div>
+    <a href="{% url 'trails:trail-list' %}" class="text-primary font-bold flex items-center gap-2 hover:gap-3 transition-all">
+      View All Trails <span class="material-symbols-outlined">arrow_forward</span>
+    </a>
+  </div>
+
+  {% if featured_trails %}
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+    {% for trail in featured_trails %}
+    {% include "_trail_card.html" with trail=trail %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-stack-lg">
+    <span class="material-symbols-outlined text-6xl text-outline mb-4 block">hiking</span>
+    <p class="text-on-surface-variant font-body-lg">No trails scraped yet. Run the scraper to populate data.</p>
+    <a href="{% url 'trails:trail-list' %}" class="mt-4 inline-block px-8 py-3 bg-primary text-on-primary rounded-full font-bold">Browse Trails</a>
+  </div>
+  {% endif %}
+</section>
+
+<!-- Region Explorer -->
+<section class="py-stack-lg bg-surface-container-low overflow-hidden">
+  <div class="container mx-auto px-margin-mobile md:px-margin-desktop">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter items-center">
+      <div class="md:col-span-5">
+        <span class="font-label-caps text-label-caps text-secondary uppercase tracking-widest mb-2 block">Territory Discovery</span>
+        <h2 class="font-display-hero text-display-hero-mobile md:text-headline-lg mb-stack-sm">Explore Pakistan's Diverse Landscapes</h2>
+        <p class="text-body-lg mb-stack-md text-on-surface-variant">From the granite spires of the Karakoram to the pine forests of the Galiyat range, discover a world of altitude and tranquility.</p>
+        <div class="space-y-4">
+          {% for region in regions %}
+          <a href="{% url 'trails:trail-list' %}?region={{ region.slug }}"
+             class="flex items-center gap-4 p-4 rounded-lg bg-surface border border-outline-variant/20 hover:border-primary/40 transition-all cursor-pointer">
+            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              <span class="material-symbols-outlined">mountain_flag</span>
+            </div>
+            <div>
+              <h4 class="font-bold">{{ region.name }}</h4>
+              <p class="text-body-sm text-outline">{{ region.trails.count }} trail{{ region.trails.count|pluralize }}</p>
+            </div>
+          </a>
+          {% empty %}
+          <p class="text-on-surface-variant">Regions will appear after the scraper runs.</p>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="md:col-span-7 relative h-[500px] mt-stack-md md:mt-0">
+        <div class="absolute top-0 right-0 w-4/5 h-4/5 rounded-lg overflow-hidden shadow-2xl z-20">
+          <img class="w-full h-full object-cover"
+               src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-Q0bNmIx3UeVHAZCUS-SgAlOZcSDUt5JN-10aN7BNfvVDx-LdFmdLm1CFY2XrDDiLBQFDRDnXjV3_wou6NbD2Wg4oQhZPkMxUDhqdr36u4QYAKQAAw9sOKcWTyBJZCJ5lnfM6BRheDrKAsPrjF5lmJPmr4zDrYu_OrNC5SiUll3-ehQPtnt1ciyhJBrlpFisS7BzdFKZSIjr4fFwByWhQWP377mFRwTGIHznDY2qQcAAoW4xw7HFb3JZaHzkaGAg7t6cmKldz4JJb"
+               alt="KPK valley"/>
+        </div>
+        <div class="absolute bottom-0 left-0 w-2/3 h-2/3 rounded-lg overflow-hidden shadow-xl z-10 border-4 border-surface translate-x-4 -translate-y-4">
+          <img class="w-full h-full object-cover"
+               src="https://lh3.googleusercontent.com/aida-public/AB6AXuAX7O1tj4A8_ZhV6n9Say6kmHlrz-kTlw0wdxKgtYPzi6HqgGV4JN0Kf_NRmeGdI876EZW2cg-c4wI-nnSD5LRpfkM_LfM5Ghg7WpeL6Qxg1xdf7NXZQLdHeaxjUjYBi2cw28cHRTnuV0uuJO1p5g20vUAIygTAvXWV93ZtJeeOrtS9sdEzV3Xr-9RN65zeWQyKivd3AOrZ0NNp4s9JPyO6yqj2-CQX-A9KkGc7G0N0R8tJiDOEWRgPDG0FOcNT4tsRMdyR64iEmPY9"
+               alt="Mountain ridge at sunset"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+{% endblock %}

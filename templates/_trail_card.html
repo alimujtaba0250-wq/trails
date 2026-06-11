@@ -1,0 +1,84 @@
+{% comment %}
+  Reusable trail card. Expects `trail` in context.
+  Works on home.html (md:grid-cols-3) and trail_list.html (md:grid-cols-2 xl:grid-cols-3).
+{% endcomment %}
+{% load trail_tags %}
+<a href="{{ trail.get_absolute_url }}"
+   class="group bg-surface-container-lowest rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all border border-outline-variant/20 block">
+  <!-- Photo -->
+  <div class="relative h-56 overflow-hidden">
+    {% with trail.photos.first as photo %}
+    {% if photo %}
+    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+         src="{{ photo.url }}" alt="{{ trail.title }}"/>
+    {% else %}
+    <div class="w-full h-full bg-surface-container-high flex items-center justify-center">
+      <span class="material-symbols-outlined text-6xl text-outline">landscape</span>
+    </div>
+    {% endif %}
+    {% endwith %}
+    <!-- Badges -->
+    <div class="absolute top-4 left-4 flex gap-2 flex-wrap">
+      {% if trail.difficulty %}
+      <span class="px-3 py-1 {{ trail.difficulty|difficulty_badge_class }} font-label-caps text-[10px] rounded-full uppercase">
+        {{ trail.difficulty }}
+      </span>
+      {% endif %}
+      {% if trail.region %}
+      <span class="px-3 py-1 bg-primary-container text-on-primary-container font-label-caps text-[10px] rounded-full uppercase">
+        {{ trail.region.name }}
+      </span>
+      {% endif %}
+    </div>
+  </div>
+  <!-- Card body -->
+  <div class="p-6">
+    <div class="flex justify-between items-start mb-2">
+      <h3 class="font-headline-md text-headline-md text-on-background leading-tight pr-2">{{ trail.title }}</h3>
+      {% if trail.trail_rank %}
+      <div class="flex flex-col items-end shrink-0">
+        <span class="text-secondary font-bold text-lg">{{ trail.trail_rank }}/100</span>
+        <span class="text-[10px] font-label-caps text-outline uppercase">TrailRank</span>
+      </div>
+      {% endif %}
+    </div>
+    {% if trail.near %}
+    <p class="text-on-surface-variant text-body-sm mb-3 flex items-center gap-1">
+      <span class="material-symbols-outlined text-[16px]">location_on</span>
+      near {{ trail.near }}
+    </p>
+    {% endif %}
+    <!-- Rating stars -->
+    {% if trail.rating %}
+    <div class="flex items-center gap-1 text-secondary mb-4">
+      {% with trail.rating|floatformat:0 as full_stars %}
+      {% for i in "12345" %}
+      <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">star</span>
+      {% endfor %}
+      {% endwith %}
+      <span class="text-on-surface-variant text-body-sm font-medium ml-1">{{ trail.rating }} ({{ trail.num_reviews|default:0 }} reviews)</span>
+    </div>
+    {% endif %}
+    <!-- Stats -->
+    <div class="grid grid-cols-2 gap-4 border-t border-outline-variant/30 pt-4">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">route</span>
+        <div>
+          <p class="text-[10px] font-label-caps text-outline uppercase leading-none">Distance</p>
+          <p class="font-bold text-on-background">
+            {% if trail.distance_km %}{{ trail.distance_km|floatformat:1 }} km{% elif trail.distance_mi %}{{ trail.distance_mi|floatformat:1 }} mi{% else %}—{% endif %}
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">landscape</span>
+        <div>
+          <p class="text-[10px] font-label-caps text-outline uppercase leading-none">Elevation Gain</p>
+          <p class="font-bold text-on-background">
+            {% if trail.elevation_gain_m %}{{ trail.elevation_gain_m|floatformat:0 }} m{% elif trail.elevation_gain_ft %}{{ trail.elevation_gain_ft|floatformat:0 }} ft{% else %}—{% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</a>

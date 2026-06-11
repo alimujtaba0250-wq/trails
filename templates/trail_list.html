@@ -1,0 +1,136 @@
+{% extends "_base.html" %}
+{% load trail_tags %}
+{% block title %}All Trails | TrailPK{% endblock %}
+{% block nav_trails %}text-primary font-bold border-b-2 border-primary pb-1{% endblock %}
+
+{% block content %}
+<main class="mt-20 pt-stack-lg max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+
+  <!-- Filter bar -->
+  <form method="get" action=""
+        class="glass-card rounded-lg p-stack-sm mb-stack-lg flex flex-wrap items-end gap-gutter">
+    <!-- Region -->
+    <div class="flex flex-col min-w-[140px]">
+      <label class="font-label-caps text-label-caps text-on-surface-variant mb-1">Region</label>
+      <select name="region" class="bg-transparent border-none focus:ring-0 font-body-sm text-primary font-bold cursor-pointer"
+              onchange="this.form.submit()">
+        <option value="">All Regions</option>
+        {% for r in regions %}
+        <option value="{{ r.slug }}" {% if request.GET.region == r.slug %}selected{% endif %}>{{ r.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <!-- Difficulty -->
+    <div class="flex flex-col min-w-[140px]">
+      <label class="font-label-caps text-label-caps text-on-surface-variant mb-1">Difficulty</label>
+      <select name="difficulty" class="bg-transparent border-none focus:ring-0 font-body-sm text-primary font-bold cursor-pointer"
+              onchange="this.form.submit()">
+        <option value="">Any Level</option>
+        {% for d in "Easy,Moderate,Hard"|split:"," %}
+        <option value="{{ d }}" {% if request.GET.difficulty == d %}selected{% endif %}>{{ d }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <!-- Trail type -->
+    <div class="flex flex-col min-w-[140px]">
+      <label class="font-label-caps text-label-caps text-on-surface-variant mb-1">Trail Type</label>
+      <select name="trail_type" class="bg-transparent border-none focus:ring-0 font-body-sm text-primary font-bold cursor-pointer"
+              onchange="this.form.submit()">
+        <option value="">Any Type</option>
+        <option value="loop"          {% if request.GET.trail_type == "loop" %}selected{% endif %}>Loop</option>
+        <option value="out & back"    {% if request.GET.trail_type == "out & back" %}selected{% endif %}>Out &amp; Back</option>
+        <option value="point to point"{% if request.GET.trail_type == "point to point" %}selected{% endif %}>Point to Point</option>
+      </select>
+    </div>
+    <!-- Submit -->
+    <button type="submit" class="ml-auto px-6 py-2 bg-primary text-on-primary rounded-full font-bold hover:opacity-90 transition-all">
+      Filter
+    </button>
+  </form>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+
+    <!-- Trail cards -->
+    <div class="lg:col-span-9">
+
+      {% if trails %}
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter">
+        {% for trail in trails %}
+        {% include "_trail_card.html" with trail=trail %}
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if is_paginated %}
+      <nav class="mt-stack-lg flex items-center justify-center gap-2 pb-stack-lg">
+        {% if page_obj.has_previous %}
+        <a href="?{% querystring page=page_obj.previous_page_number %}"
+           class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary/10 transition-colors">
+          <span class="material-symbols-outlined">chevron_left</span>
+        </a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if num == page_obj.number %}
+          <span class="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-on-primary font-bold">{{ num }}</span>
+          {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+          <a href="?{% querystring page=num %}"
+             class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary/10 transition-colors">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?{% querystring page=page_obj.next_page_number %}"
+           class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-primary/10 transition-colors">
+          <span class="material-symbols-outlined">chevron_right</span>
+        </a>
+        {% endif %}
+      </nav>
+      {% endif %}
+
+      {% else %}
+      <div class="text-center py-stack-lg col-span-3">
+        <span class="material-symbols-outlined text-6xl text-outline mb-4 block">search_off</span>
+        <p class="text-on-surface-variant font-body-lg mb-2">No trails match your filters.</p>
+        <a href="{% url 'trails:trail-list' %}" class="text-primary font-bold underline">Clear filters</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="lg:col-span-3 space-y-stack-md">
+      <!-- Regions quick links -->
+      <div class="glass-card rounded-lg p-stack-sm border border-outline-variant/30">
+        <h4 class="font-headline-md text-[18px] mb-4">Explore by Region</h4>
+        <ul class="space-y-3">
+          {% for r in regions %}
+          <li>
+            <a href="?region={{ r.slug }}"
+               class="flex items-center gap-3 group cursor-pointer hover:text-primary transition-colors">
+              <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary shrink-0">
+                <span class="material-symbols-outlined">landscape</span>
+              </div>
+              <div>
+                <p class="font-bold text-body-sm group-hover:text-primary transition-colors">{{ r.name }}</p>
+                <p class="text-[12px] text-outline">{{ r.trails.count }} trail{{ r.trails.count|pluralize }}</p>
+              </div>
+            </a>
+          </li>
+          {% empty %}
+          <li class="text-on-surface-variant text-body-sm">No regions yet.</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- CTA -->
+      <div class="bg-primary p-stack-sm rounded-lg text-on-primary relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-4 opacity-10">
+          <span class="material-symbols-outlined text-8xl">hiking</span>
+        </div>
+        <h4 class="font-headline-md text-[20px] mb-2 relative z-10">Plan Your Expedition</h4>
+        <p class="text-body-sm mb-4 opacity-90 relative z-10">Browse all verified routes and start planning your next adventure.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+{% endblock %}

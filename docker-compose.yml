@@ -1,0 +1,45 @@
+# Docker Compose services: web (Django), db (PostgreSQL), scraper (Scrapy)
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"    # host:5433 → container:5432 (for local tools like pgAdmin)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  web:
+    build: .
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
+      DB_HOST: db
+      DB_PORT: "5432"    # always use the internal Docker network port
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  scraper:
+    build: .
+    command: scrapy crawl wikiloc
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"    # always use the internal Docker network port
+    working_dir: /app/scraper
+    depends_on:
+      db:
+        condition: service_healthy

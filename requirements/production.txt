@@ -1,0 +1,4 @@
+# Production-only dependencies
+-r base.txt
+gunicorn>=22.0
+whitenoise>=6.7

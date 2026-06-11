@@ -1,0 +1,256 @@
+{% extends "_base.html" %}
+{% load trail_tags %}
+{% block title %}{{ trail.title }} | TrailPK{% endblock %}
+{% block nav_trails %}text-primary font-bold border-b-2 border-primary pb-1{% endblock %}
+
+{% block content %}
+<main class="mt-20">
+
+  <!-- Hero -->
+  <section class="relative h-[614px] md:h-[768px] w-full overflow-hidden">
+    {% with trail.photos.first as hero %}
+    {% if hero %}
+    <img class="w-full h-full object-cover" src="{{ hero.url }}" alt="{{ trail.title }}"/>
+    {% else %}
+    <div class="w-full h-full bg-surface-container-high flex items-center justify-center">
+      <span class="material-symbols-outlined text-9xl text-outline">landscape</span>
+    </div>
+    {% endif %}
+    {% endwith %}
+    <div class="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent"></div>
+    <div class="absolute bottom-0 left-0 w-full px-margin-mobile md:px-margin-desktop pb-stack-lg">
+      <div class="max-w-container-max mx-auto">
+        {% if trail.difficulty %}
+        <span class="inline-block bg-secondary-container text-on-secondary-container px-4 py-1 rounded-full font-label-caps text-label-caps mb-4 uppercase">
+          {{ trail.difficulty }}
+        </span>
+        {% endif %}
+        <h1 class="font-display-hero text-display-hero-mobile md:text-display-hero text-on-background mb-2">
+          {{ trail.title }}
+        </h1>
+        {% if trail.near or trail.region %}
+        <p class="font-body-lg text-body-lg text-on-surface-variant flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary">location_on</span>
+          {% if trail.near %}near {{ trail.near }}{% endif %}{% if trail.near and trail.region %}, {% endif %}{% if trail.region %}{{ trail.region.name }}{% endif %}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Content grid -->
+  <section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+
+      <!-- Left column -->
+      <div class="lg:col-span-8 space-y-stack-lg">
+
+        <!-- Key stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-stack-sm">
+          <div class="bg-surface-container-low p-stack-md rounded-lg border border-outline-variant/10">
+            <p class="font-label-caps text-label-caps text-outline mb-1 uppercase">Distance</p>
+            <p class="font-headline-md text-headline-md text-primary">
+              {% if trail.distance_km %}{{ trail.distance_km|floatformat:1 }}<span class="text-body-sm font-normal text-on-surface-variant"> km</span>{% elif trail.distance_mi %}{{ trail.distance_mi|floatformat:1 }}<span class="text-body-sm font-normal text-on-surface-variant"> mi</span>{% else %}—{% endif %}
+            </p>
+          </div>
+          <div class="bg-surface-container-low p-stack-md rounded-lg border border-outline-variant/10">
+            <p class="font-label-caps text-label-caps text-outline mb-1 uppercase">Elev. Gain</p>
+            <p class="font-headline-md text-headline-md text-primary">
+              {% if trail.elevation_gain_m %}{{ trail.elevation_gain_m }}<span class="text-body-sm font-normal text-on-surface-variant"> m</span>{% elif trail.elevation_gain_ft %}{{ trail.elevation_gain_ft }}<span class="text-body-sm font-normal text-on-surface-variant"> ft</span>{% else %}—{% endif %}
+            </p>
+          </div>
+          <div class="bg-surface-container-low p-stack-md rounded-lg border border-outline-variant/10">
+            <p class="font-label-caps text-label-caps text-outline mb-1 uppercase">Moving Time</p>
+            <p class="font-headline-md text-headline-md text-primary">
+              {% if trail.moving_time %}{{ trail.moving_time }}{% else %}—{% endif %}
+            </p>
+          </div>
+          <div class="bg-surface-container-low p-stack-md rounded-lg border border-outline-variant/10">
+            <p class="font-label-caps text-label-caps text-outline mb-1 uppercase">TrailRank</p>
+            {% if trail.trail_rank %}
+            <div class="flex items-center gap-2">
+              <p class="font-headline-md text-headline-md text-secondary">{{ trail.trail_rank }}<span class="text-body-sm font-normal text-on-surface-variant">/100</span></p>
+              <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1;">verified</span>
+            </div>
+            {% else %}
+            <p class="font-headline-md text-headline-md text-outline">—</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Secondary stats -->
+        <div class="flex flex-wrap gap-gutter py-4 border-y border-outline-variant/20">
+          {% if trail.elevation_max_ft %}
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">altitude</span>
+            <span class="font-body-md text-on-surface-variant">Max Elev: <strong>{{ trail.elevation_max_ft|floatformat:0 }} ft</strong></span>
+          </div>
+          {% endif %}
+          {% if trail.trail_type %}
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">route</span>
+            <span class="font-body-md text-on-surface-variant">Type: <strong>{{ trail.trail_type }}</strong></span>
+          </div>
+          {% endif %}
+          {% if trail.rating %}
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1;">star</span>
+            <span class="font-body-md text-on-surface-variant"><strong>{{ trail.rating }}</strong></span>
+          </div>
+          {% endif %}
+          {% if trail.total_time %}
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">schedule</span>
+            <span class="font-body-md text-on-surface-variant">Total: <strong>{{ trail.total_time }}</strong></span>
+          </div>
+          {% endif %}
+          {% if trail.activity %}
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">directions_walk</span>
+            <span class="font-body-md text-on-surface-variant">Activity: <strong>{{ trail.activity }}</strong></span>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Description -->
+        {% if trail.description %}
+        <div class="space-y-stack-sm">
+          <h2 class="font-headline-lg text-headline-lg text-on-surface">About This Trail</h2>
+          <div class="font-body-lg text-body-lg text-on-surface-variant space-y-4">
+            {{ trail.description|linebreaks }}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Waypoints -->
+        {% with trail.waypoints.all as waypoints %}
+        {% if waypoints %}
+        <div class="space-y-stack-sm">
+          <h3 class="font-headline-md text-headline-md text-on-surface">Trail Milestones</h3>
+          <div class="space-y-0 relative before:absolute before:left-[11px] before:top-4 before:bottom-4 before:w-0.5 before:bg-outline-variant/30">
+            {% for wp in waypoints %}
+            <div class="relative pl-10 pb-6 last:pb-0">
+              <div class="absolute left-0 top-1.5 w-6 h-6 rounded-full
+                          {% if forloop.last %}bg-secondary{% else %}bg-primary{% endif %}
+                          border-4 border-surface-container-lowest"></div>
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="font-bold text-body-lg {% if forloop.last %}text-secondary{% else %}text-on-surface{% endif %}">
+                    {{ wp.name }}
+                  </p>
+                  {% if wp.description %}
+                  <p class="font-body-sm text-on-surface-variant">{{ wp.description }}</p>
+                  {% endif %}
+                </div>
+                {% if wp.elevation_ft %}
+                <span class="bg-surface-container p-2 rounded text-label-caps font-bold shrink-0 ml-4">
+                  {{ wp.elevation_ft|floatformat:0 }} ft
+                </span>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Photo gallery -->
+        {% with trail.photos.all as photos %}
+        {% if photos %}
+        <div>
+          <h3 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">Photos</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-stack-sm">
+            {% for photo in photos|slice:":6" %}
+            <img class="w-full h-64 object-cover rounded-lg shadow-sm
+                        {% if forloop.counter == 2 %}md:col-span-2{% endif %}
+                        {% if forloop.counter == 3 %}md:col-span-3{% endif %}"
+                 src="{{ photo.url }}"
+                 alt="{{ photo.alt_text|default:trail.title }}"/>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+      </div><!-- /left col -->
+
+      <!-- Right column (sticky) -->
+      <aside class="lg:col-span-4 lg:sticky lg:top-24 space-y-stack-md">
+
+        <!-- Source / map card -->
+        <div class="glass-card p-4 rounded-lg shadow-md border border-outline-variant/30">
+          <div class="h-48 w-full bg-surface-container rounded-lg mb-4 overflow-hidden relative border border-outline-variant/20 flex items-center justify-center">
+            <span class="material-symbols-outlined text-6xl text-outline">map</span>
+            {% if trail.latitude and trail.longitude %}
+            <div class="absolute bottom-3 left-3 text-body-sm text-on-surface-variant bg-surface/80 px-2 py-1 rounded">
+              {{ trail.latitude|floatformat:4 }}, {{ trail.longitude|floatformat:4 }}
+            </div>
+            {% endif %}
+          </div>
+          <div class="flex gap-stack-sm">
+            {% if trail.source_url %}
+            <a href="{{ trail.source_url }}" target="_blank" rel="noopener"
+               class="flex-1 bg-primary text-on-primary py-3 rounded-full font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+              <span class="material-symbols-outlined">open_in_new</span>
+              View on Wikiloc
+            </a>
+            {% endif %}
+          </div>
+          <p class="text-center mt-3 text-body-sm text-outline">
+            Data sourced from <a class="text-primary hover:underline" href="https://www.wikiloc.com" target="_blank" rel="noopener">Wikiloc</a>
+          </p>
+        </div>
+
+        <!-- Author card -->
+        {% if trail.author_name %}
+        <div class="bg-surface-container-low p-stack-md rounded-lg border border-outline-variant/10">
+          <p class="font-label-caps text-label-caps text-outline mb-4 uppercase">Trail Author</p>
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full overflow-hidden bg-primary-fixed flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-primary text-3xl">person</span>
+            </div>
+            <div>
+              <h4 class="font-bold text-on-surface">{{ trail.author_name }}</h4>
+              {% if trail.author_wikiloc_id %}
+              <a href="https://www.wikiloc.com/wikiloc/user.do?id={{ trail.author_wikiloc_id }}"
+                 target="_blank" rel="noopener"
+                 class="text-body-sm text-primary hover:underline">View on Wikiloc</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Extra metadata -->
+        <div class="bg-surface-container-low p-stack-md rounded-lg border border-outline-variant/10 space-y-3">
+          <p class="font-label-caps text-label-caps text-outline uppercase mb-3">Trail Details</p>
+          {% if trail.wikiloc_id %}
+          <div class="flex justify-between text-body-sm">
+            <span class="text-on-surface-variant">Wikiloc ID</span>
+            <span class="font-bold">{{ trail.wikiloc_id }}</span>
+          </div>
+          {% endif %}
+          {% if trail.views_count %}
+          <div class="flex justify-between text-body-sm">
+            <span class="text-on-surface-variant">Views</span>
+            <span class="font-bold">{{ trail.views_count }}</span>
+          </div>
+          {% endif %}
+          {% if trail.recorded_date %}
+          <div class="flex justify-between text-body-sm">
+            <span class="text-on-surface-variant">Recorded</span>
+            <span class="font-bold">{{ trail.recorded_date }}</span>
+          </div>
+          {% endif %}
+          <div class="flex justify-between text-body-sm">
+            <span class="text-on-surface-variant">Last updated</span>
+            <span class="font-bold">{{ trail.updated_at|date:"M j, Y" }}</span>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+  </section>
+</main>
+{% endblock %}
